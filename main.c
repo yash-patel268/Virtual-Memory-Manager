@@ -22,16 +22,16 @@ int readBin(int pageNum, char *PM, int* OF){
 		exit(0);
 	}
 
-	if (fseek(fp, pageNum * BUFFER_SIZE, SEEK_SET)!=0){
+	if(fseek(fp, pageNum * BUFFER_SIZE, SEEK_SET) != 0){
         printf("error in fseek\n");
     }
 
-	else if (fread(buffer, sizeof(char), BUFFER_SIZE, fp)==0){
+	else if(fread(buffer, sizeof(char), BUFFER_SIZE, fp) == 0){
 		printf("error in fread\n");
     }
 	
 	for(int x=0; x<BUFFER_SIZE; x++){
-		*((PM + (*OF)*BUFFER_SIZE)+x) = buffer[x];
+		*((PM + (*OF) *BUFFER_SIZE) + x) = buffer[x];
 	}
 	
 	(*OF)++;
@@ -49,7 +49,7 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 
 	offset = logicalAddr & mask;
 
-	for (int x=0; x<TLB_SIZE; x++){
+	for(int x=0; x<TLB_SIZE; x++){
 		if(tlb->TLBpage[x] == pageNum){
 			frame = tlb->TLBframe[x];
 			TLBhit = true;
@@ -57,8 +57,8 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 		}
 	}
 
-	if (TLBhit == false){
-		if (PT[pageNum] == -1){
+	if(TLBhit == false){
+		if(PT[pageNum] == -1){
 			newFrame = readFromDisk(pageNum, PM, OF);
 			PT[pageNum] = newFrame;
 			(*pageFaults)++;
@@ -73,12 +73,11 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 	int index = ((unsigned char) frame * BUFFER_SIZE) + offset;
 	value = *(PM + index);
 
-	printf("Physical address: %d\t Value: %d\n",index, value);	
+	printf("Physical address: %d\t Value: %d\n", index, value);	
 	return 0;
 }
 
 int main (int argc, char* argv[]){
-	
 	int val;
 	int openFrame = 0;
 	int pageFaults = 0;
@@ -97,25 +96,25 @@ int main (int argc, char* argv[]){
 	memset(tlb.TLBframe, -1, sizeof(tlb.TLBframe));
 	tlb.ind = 0;
 
-	if (argc < 2){
+	if(argc < 2){
 		printf("Not enough arguments\nProgram Exiting\n");
 		exit(0);
 	}
 
 	fd = fopen(argv[1], "r");
-	if (fd == NULL){
+	if(fd == NULL){
 		printf("File failed to open\n");
 		exit(0);
 	}
 	
-	while (fscanf(fd, "%d", &val)==1){
-		findPage(val, PageTable, &tlb, (char*)PhyMem, &openFrame, &pageFaults, &TLBhits);
+	while(fscanf(fd, "%d", &val) == 1){
+		findPage(val, PageTable, &tlb, (char*) PhyMem, &openFrame, &pageFaults, &TLBhits);
 		inputCount++;
 	}
 
-	pageFaultRate = (float)pageFaults / (float)inputCount;
-	TLBHitRate = (float)TLBhits / (float)inputCount;
-	printf("Page Fault Rate = %.4f\nTLB hit rate= %.4f\n",pageFaultRate, TLBHitRate);
+	pageFaultRate = (float) pageFaults / (float) inputCount;
+	TLBHitRate = (float) TLBhits / (float) inputCount;
+	printf("Page Fault Rate = %.4f\nTLB hit rate= %.4f\n", pageFaultRate, TLBHitRate);
 
 	close(fd);
 	return 0;
