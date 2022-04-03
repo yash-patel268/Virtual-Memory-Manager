@@ -12,3 +12,29 @@ typedef struct {
 	int ind;
 } TLB;
 
+int read(int pageNum, char *phyMem, int* offset){
+	char buffer[BUFFER_SIZE];
+	memset(buffer, 0, sizeof(buffer));
+	FILE *fp;
+
+	fp = fopen("BACKING_STORE.bin", "rb");
+	if (fp == NULL){
+		printf("File failed to open\n");
+		exit(0);
+	}
+
+	if (fseek(fp, pageNum * BUFFER_SIZE, SEEK_SET)!=0){
+        printf("error in fseek\n");
+    }
+
+	else if (fread(buffer, sizeof(char), BUFFER_SIZE, fp)==0){
+		printf("error in fread\n");
+    }
+	
+	for(int x=0; x<BUFFER_SIZE; x++){
+		*((phyMem + (*offset)*BUFFER_SIZE)+x) = buffer[x];
+	}
+	
+	(*offset)++;
+	return (*offset)-1;
+}
