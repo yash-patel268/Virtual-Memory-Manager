@@ -76,3 +76,47 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 	printf("Physical address: %d\t Value: %d\n",index, value);	
 	return 0;
 }
+
+int main (int argc, char* argv[]){
+	
+	int val;
+	int openFrame = 0;
+	int pageFaults = 0;
+	int TLBhits = 0;
+	int inputCount = 0;
+	float pageFaultRate;
+	float TLBHitRate;
+	FILE *fd;
+	char PhyMem[BUFFER_SIZE][BUFFER_SIZE]; 
+	unsigned char PageTable[BUFFER_SIZE];
+
+	memset(PageTable, -1, sizeof(PageTable));	
+
+	struct TLB tlb;	
+	memset(tlb.TLBpage, -1, sizeof(tlb.TLBpage));
+	memset(tlb.TLBframe, -1, sizeof(tlb.TLBframe));
+	tlb.ind = 0;
+
+	if (argc < 2){
+		printf("Not enough arguments\nProgram Exiting\n");
+		exit(0);
+	}
+
+	fd = fopen(argv[1], "r");
+	if (fd == NULL){
+		printf("File failed to open\n");
+		exit(0);
+	}
+	
+	while (fscanf(fd, "%d", &val)==1){
+		findPage(val, PageTable, &tlb, (char*)PhyMem, &openFrame, &pageFaults, &TLBhits);
+		inputCount++;
+	}
+
+	pageFaultRate = (float)pageFaults / (float)inputCount;
+	TLBHitRate = (float)TLBhits / (float)inputCount;
+	printf("Page Fault Rate = %.4f\nTLB hit rate= %.4f\n",pageFaultRate, TLBHitRate);
+
+	close(fd);
+	return 0;
+}
