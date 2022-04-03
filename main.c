@@ -59,7 +59,7 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 
 	if(TLBhit == false){
 		if(PT[pageNum] == -1){
-			newFrame = readFromDisk(pageNum, PM, OF);
+			newFrame = readBin(pageNum, PM, OF);
 			PT[pageNum] = newFrame;
 			(*pageFaults)++;
 		}
@@ -86,10 +86,10 @@ int main (int argc, char* argv[]){
 	float pageFaultRate;
 	float TLBHitRate;
 	FILE *fd;
-	char PhyMem[BUFFER_SIZE][BUFFER_SIZE]; 
-	unsigned char PageTable[BUFFER_SIZE];
+	char phyMem[BUFFER_SIZE][BUFFER_SIZE]; 
+	char pageTable[BUFFER_SIZE];
 
-	memset(PageTable, -1, sizeof(PageTable));	
+	memset(pageTable, -1, sizeof(pageTable));	
 
 	struct TLB tlb;	
 	memset(tlb.TLBpage, -1, sizeof(tlb.TLBpage));
@@ -108,7 +108,7 @@ int main (int argc, char* argv[]){
 	}
 	
 	while(fscanf(fd, "%d", &val) == 1){
-		findPage(val, PageTable, &tlb, (char*) PhyMem, &openFrame, &pageFaults, &TLBhits);
+		findPage(val, pageTable, &tlb, (char*) phyMem, &openFrame, &pageFaults, &TLBhits);
 		inputCount++;
 	}
 
@@ -116,6 +116,6 @@ int main (int argc, char* argv[]){
 	TLBHitRate = (float) TLBhits / (float) inputCount;
 	printf("Page Fault Rate = %.4f\nTLB hit rate= %.4f\n", pageFaultRate, TLBHitRate);
 
-	close(fd);
+	fclose(fd);
 	return 0;
 }
