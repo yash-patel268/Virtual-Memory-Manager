@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-//Define the buffer size which will be used to define physical memory and what not
+//Define the buffer size which will be used to define physical memory and other variables
 #define BUFFER_SIZE 256
 //Define the table size 
 #define TLB_SIZE 16
@@ -19,7 +19,7 @@ struct TLB{
 int readBin(int pageNum, char *PM, int* OF){
 	//Initialize a buffer
 	char buffer[BUFFER_SIZE];
-	//Set buffer to zero
+	//Set buffer values to zero
 	memset(buffer, 0, sizeof(buffer));
 	//Initialize file variable
 	FILE *fp;
@@ -31,7 +31,7 @@ int readBin(int pageNum, char *PM, int* OF){
 		printf("File failed to open\n");
 		exit(0);
 	}
-	//Set the file position of the stream to the offset
+	//Set the file position of the stream to the buffer size
 	if(fseek(fp, pageNum * BUFFER_SIZE, SEEK_SET) != 0){
         printf("error in fseek\n");
     }
@@ -56,11 +56,11 @@ int findPage(int logicalAddr, char* PT, struct TLB *tlb,  char* PM, int* OF, int
 	int frame = 0, value, newFrame = 0;
 
 	printf("Virtual adress: %d\t", logicalAddr);
-	//Assign variable to logicaladder shifted to the right and anded wit
+	//Assign variable to logicaladder shifted to the right AND mask
 	pageNum = (logicalAddr >> 8) & mask;	
 	//Assigned offset to logicalAdder AND mask
 	offset = logicalAddr & mask;
-	//Loop through pages in the tab;e
+	//Loop through pages in the table
 	for(int x=0; x<TLB_SIZE; x++){
 		//If the page is the page we are looking for
 		if(tlb->TLBpage[x] == pageNum){
